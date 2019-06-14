@@ -39,7 +39,9 @@ function parse_call(call)
 function get_geo(data)
 {
 	var addr = data.location.split(' ').join('+') + ',RICHMOND+VA';
-	fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + addr + '&key=AIzaSyB8_2x3EdP6gSHflt18vt-C0DamzFj2K00').then(res => res.json()).then(json => parse_geo(json, data));
+	fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + addr + '&key=AIzaSyB8_2x3EdP6gSHflt18vt-C0DamzFj2K00')
+		.then(res => res.json())
+		.then(json => parse_geo(json, data));
 }
 
 function parse_geo(geo, data)
