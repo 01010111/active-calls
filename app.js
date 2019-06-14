@@ -57,10 +57,30 @@ function get_icon(agency)
 
 function make_popup(latlng, data)
 {
-	var popup = L.popup();
+	var popup = L.popup({
+		closeButton: false,
+		closeOnClick: true,
+		maxWidth: 600
+	});
 	popup.setLatLng(latlng);
-	popup.setContent(data.type);
+	popup.setContent(get_content(data));
 	popup.openOn(mymap);
+	popup.on('click', () => {
+		window.location.href = '#close';
+		console.log('click');
+	});
+}
+
+function get_content(data)
+{
+	var out = '';
+	out += data.agency;
+	out += ' ' + data.dispatch_area + '<br/>---<br/>';
+	out += data.type += '<br/>';
+	out += data.location += '<br/>';
+	out += data.status += '<br/>';
+	out += data.time;
+	return out;
 }
 
 var police_icon = L.icon({
