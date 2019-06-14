@@ -99,6 +99,10 @@ var fire_icon = L.icon({
     iconAnchor: [24, 48]
 });
 
-var mymap = L.map('map').setView([37.533333, -77.466667], 13);
+var mymap = L.map('map', { zoomControl:false }).setView([37.533333, -77.466667], 13);
 L.tileLayer('http://a.tile.stamen.com/toner/{z}/{x}/{y}.png').addTo(mymap);
 get_active_calls();
+
+setTimeout(() => {
+	document.getElementById('title').classList.add('zero_opacity')
+}, 4000);

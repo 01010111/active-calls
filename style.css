@@ -18,3 +18,20 @@
 	box-shadow: 0 0 0 0 !important;
 	max-width: 600px !important;
 }
+
+#title {
+	padding: 16px;
+	margin: 32px;
+	background-color: #000;
+	color: #fff;
+	position: absolute;
+	top: 0;
+	left: 0;
+	filter: invert(20%) sepia(50%) hue-rotate(10deg);
+	font-size: 1.5em;
+}
+
+.zero_opacity {
+	opacity: 0;
+	transition-duration: 500ms;
+}
