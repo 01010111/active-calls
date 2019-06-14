@@ -1,12 +1,20 @@
 calls = [];
+markers = [];
 
 function get_active_calls()
 {
+	remove_markers();
 	var cors_api_url = 'https://cors-anywhere.herokuapp.com/';
 	var target_site = 'http://eservices.ci.richmond.va.us/applications/publicsafety/activecalls//Home/ActiveCalls';
 	fetch(cors_api_url + target_site, {mode: 'cors'})
 		.then(res => res.text())
 		.then(html => parse_response(new DOMParser().parseFromString(html, "text/html")));
+	setTimeout(() => get_active_calls(), 60 * 60 * 1000);
+}
+
+function remove_markers()
+{
+	while (markers.length > 0) mymap.removeLayer(markers.pop());
 }
 
 function parse_response(response)
@@ -42,6 +50,7 @@ function parse_geo(geo, data)
 function make_marker(latlng, data)
 {
 	var marker = L.marker(latlng, {icon: get_icon(data.agency)}).addTo(mymap).on('click', () => make_popup(latlng, data));
+	markers.push(marker);
 }
 
 function get_icon(agency)
@@ -90,6 +99,6 @@ var fire_icon = L.icon({
     iconAnchor: [24, 48]
 });
 
-get_active_calls();
 var mymap = L.map('mapid').setView([37.533333, -77.466667], 13);
 L.tileLayer('http://a.tile.stamen.com/toner/{z}/{x}/{y}.png').addTo(mymap);
+get_active_calls();
