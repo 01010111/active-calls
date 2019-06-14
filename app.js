@@ -36,12 +36,23 @@ function get_geo(data)
 
 function parse_geo(geo, data)
 {
+	console.log(geo);
 	make_marker({lat: geo.results[0].geometry.location.lat, lng: geo.results[0].geometry.location.lng}, data);
 }
 
 function make_marker(latlng, data)
 {
-	var marker = L.marker(latlng).addTo(mymap).on('click', () => make_popup(latlng, data));
+	var marker = L.marker(latlng, {icon: get_icon(data.agency)}).addTo(mymap).on('click', () => make_popup(latlng, data));
+}
+
+function get_icon(agency)
+{
+	switch (agency)
+	{
+		case 'RPD': return police_icon;
+		case 'RFD': return fire_icon;
+		default: return police_icon;
+	}
 }
 
 function make_popup(latlng, data)
@@ -52,11 +63,18 @@ function make_popup(latlng, data)
 	popup.openOn(mymap);
 }
 
+var police_icon = L.icon({
+    iconUrl: 'police.svg',
+    iconSize: [48, 48],
+    iconAnchor: [24, 48]
+});
+
+var fire_icon = L.icon({
+    iconUrl: 'fire.svg',
+    iconSize: [48, 48],
+    iconAnchor: [24, 48]
+});
+
 get_active_calls();
 var mymap = L.map('mapid').setView([37.533333, -77.466667], 13);
-L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 18,
-    id: 'mapbox.dark',
-    accessToken: 'pk.eyJ1IjoiMDEwMTAxMTEiLCJhIjoiY2p3djYzenMyMDZkZjRhbGZyaXc5ZzBnNyJ9.O7MfptxKf1r_nZDCdm2OuQ'
-}).addTo(mymap);
+L.tileLayer('http://a.tile.stamen.com/toner/{z}/{x}/{y}.png').addTo(mymap);
