@@ -49,7 +49,10 @@ function parse_geo(geo, data)
 
 function make_marker(latlng, data)
 {
-	var marker = L.marker(latlng, {icon: get_icon(data.agency)}).addTo(mymap).on('click', () => make_popup(latlng, data));
+	var marker = L.marker(latlng, {
+		icon: get_icon(data.agency),
+		riseOnHover: true
+	}).addTo(mymap).on('click', () => make_popup(latlng, data));
 	markers.push(marker);
 }
 
@@ -79,11 +82,11 @@ function get_content(data)
 {
 	var out = '';
 	out += data.agency;
-	out += ' ' + data.dispatch_area + '<br/>---<br/>';
+	out += ' ' + data.dispatch_area + '<br/><font color="#ff004d">---</font><br/>';
 	out += data.type += '<br/>';
 	out += data.location += '<br/>';
 	out += data.status += '<br/>';
-	out += data.time;
+	out += '<font color="#ff004d">' + data.time + '</font>';
 	return out;
 }
 
