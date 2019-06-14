@@ -5,7 +5,7 @@
 	font-weight: bold;
 }
 
-#mapid {
+#map {
 	width: 100vw;
 	height: 100vh;
 	filter: invert(20%) sepia(50%) hue-rotate(10deg);
