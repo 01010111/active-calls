@@ -36,7 +36,6 @@ function get_geo(data)
 
 function parse_geo(geo, data)
 {
-	console.log(geo);
 	make_marker({lat: geo.results[0].geometry.location.lat, lng: geo.results[0].geometry.location.lng}, data);
 }
 
@@ -65,10 +64,6 @@ function make_popup(latlng, data)
 	popup.setLatLng(latlng);
 	popup.setContent(get_content(data));
 	popup.openOn(mymap);
-	popup.on('click', () => {
-		window.location.href = '#close';
-		console.log('click');
-	});
 }
 
 function get_content(data)
