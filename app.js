@@ -1,5 +1,7 @@
 calls = [];
 markers = [];
+circles = [];
+alerts = [];
 
 function get_active_calls()
 {
@@ -15,6 +17,7 @@ function get_active_calls()
 function remove_markers()
 {
 	while (markers.length > 0) mymap.removeLayer(markers.pop());
+	while (circles.length > 0) mymap.removeLayer(circles.pop());
 }
 
 function parse_response(response)
@@ -46,6 +49,7 @@ function get_geo(data)
 
 function parse_geo(geo, data)
 {
+	if (geo.status != 'OK') return;
 	make_marker({lat: geo.results[0].geometry.location.lat, lng: geo.results[0].geometry.location.lng}, data);
 }
 
@@ -54,8 +58,55 @@ function make_marker(latlng, data)
 	var marker = L.marker(latlng, {
 		icon: get_icon(data.agency),
 		riseOnHover: true
-	}).addTo(mymap).on('click', () => make_popup(latlng, data));
+	}).bindPopup(get_content(data), {
+		closeButton: false,
+		closeOnClick: true,
+		maxWidth: 600
+	}).addTo(mymap);
+	var circle = L.circle([latlng.lat, latlng.lng], {
+		fillColor: '#ff004d',
+		fillOpacity: 0.05,
+		radius: 2000,
+		stroke: false
+	}).addTo(mymap);
 	markers.push(marker);
+	circles.push(circle);
+	check_home_distance(latlng, data);
+}
+
+function check_home_distance(latlng, data)
+{
+	var d = distance({ x: latlng.lat, y: latlng.lng }, { x: 37.577321, y: -77.415282 });
+	if (d < 0.01) send_text(data);
+}
+
+function send_text(data)
+{
+	var msg = '';
+	msg += data.agency;
+	msg += ' ALERT\n---\n';
+	msg += data.type += '\n';
+	msg += data.location += '\n';
+	msg += data.status += '\n';
+	msg += data.time;
+	if (alerts.indexOf(msg) != -1) return;
+	if (window.location.href.indexOf('me') == -1) return;
+	alerts.push(msg);
+	console.log('email: ', msg);
+	Email.send({
+		Host : "smtp.elasticemail.com",
+		Username : "b.ultra.dnb@gmail.com",
+		Password : "d2a5019f-e677-40ac-b9f9-183e8a214d58",
+		To : '8044774864@vtext.com',
+		From : "b.ultra.dnb@gmail.com",
+		Subject : "",
+		Body : msg
+	});
+}
+
+function distance(p1, p2)
+{
+	return Math.sqrt( Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2) );
 }
 
 function get_icon(agency)
@@ -66,18 +117,6 @@ function get_icon(agency)
 		case 'RFD': return fire_icon;
 		default: return police_icon;
 	}
-}
-
-function make_popup(latlng, data)
-{
-	var popup = L.popup({
-		closeButton: false,
-		closeOnClick: true,
-		maxWidth: 600
-	});
-	popup.setLatLng(latlng);
-	popup.setContent(get_content(data));
-	popup.openOn(mymap);
 }
 
 function get_content(data)
