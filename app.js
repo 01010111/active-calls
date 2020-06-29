@@ -1,12 +1,20 @@
+trace = console.log;
 calls = [];
 markers = [];
 circles = [];
-alerts = [];
-trace = console.log;
+const params = new URLSearchParams(window.location.href.split('?')[1]);
+lat = params.get('lat');
+lng = params.get('lng');
+do_alert = params.get('alert');
+miles = parseFloat(params.get('miles'));
+if (isNaN(miles)) miles = 1;
 
 function get_active_calls()
 {
 	remove_markers();
+	if (lat && lng) make_marker({ lat: lat, lng: lng }, {
+		agency: 'HOME'
+	});
 	fetch('https://cors-anywhere.herokuapp.com/https://apps.richmondgov.com/applications/activecalls/Home/ActiveCalls')
 		.then(res => res.text())
 		.then(html => parse_response(new DOMParser().parseFromString(html, 'text/html')));
@@ -56,53 +64,68 @@ function parse_geo(geo, data)
 
 function make_marker(latlng, data)
 {
+	var is_home = data.agency == 'HOME';
+	var close = !is_home &&  check_home_distance(latlng, data);
 	var marker = L.marker(latlng, {
 		icon: get_icon(data.agency),
 		riseOnHover: true
-	}).bindPopup(get_content(data), {
+	});
+	if (!is_home) marker.bindPopup(get_content(data), {
 		closeButton: false,
 		closeOnClick: true,
 		maxWidth: 600
-	}).addTo(mymap);
-	var circle = L.circle([latlng.lat, latlng.lng], {
-		fillColor: '#ff004d',
-		fillOpacity: 0.05,
-		radius: 2000,
-		stroke: false
-	}).addTo(mymap);
+	});
+	marker.addTo(mymap);
 	markers.push(marker);
-	circles.push(circle);
-	check_home_distance(latlng, data);
+	if (is_home) {
+		var circle = L.circle([latlng.lat, latlng.lng], {
+			fillOpacity: 0,
+			radius: 1609.34 * miles,
+			color: '#000000',
+			dashArray: '4',
+			weight: 2
+		}).addTo(mymap);
+		circles.push(circle);
+	}
+	else {
+		var circle = close ? 
+			L.circle([latlng.lat, latlng.lng], {
+				fillColor: '#ff004d',
+				fillOpacity: 0.25,
+				radius: 1609.34 * miles,
+				color: '#ff004d',
+				dashArray: '4',
+				weight: 1
+			}).addTo(mymap):
+			L.circle([latlng.lat, latlng.lng], {
+				fillColor: '#ff004d',
+				fillOpacity: 0.1,
+				radius: 1609.34 * miles,
+				stroke: false
+			}).addTo(mymap);
+		circles.push(circle);
+	}
 }
 
 function check_home_distance(latlng, data)
 {
-	var d = distance({ x: latlng.lat, y: latlng.lng }, { x: 37.577321, y: -77.415282 });
-	if (d < 0.01) send_text(data);
+	if (lat == undefined || lng == undefined || data.agency == 'HOME') return false;
+	var out = distance({ x: latlng.lat, y: latlng.lng }, { x: parseFloat(lat), y: parseFloat(lng) }) < (0.0145 * miles);
+	if (out) proximity_alert(data);
+	return out;
 }
 
-function send_text(data)
+function proximity_alert(data)
 {
 	var msg = '';
-	msg += data.agency;
+	msg += data.agency.split('<br/>')[0];
 	msg += ' ALERT\n---\n';
-	msg += data.type += '\n';
-	msg += data.location += '\n';
-	msg += data.status += '\n';
-	msg += data.time;
-	if (alerts.indexOf(msg) != -1) return;
-	if (window.location.href.indexOf('me') == -1) return;
-	alerts.push(msg);
-	console.log('email: ', msg);
-	Email.send({
-		Host : "smtp.elasticemail.com",
-		Username : "b.ultra.dnb@gmail.com",
-		Password : "d2a5019f-e677-40ac-b9f9-183e8a214d58",
-		To : '8044774864@vtext.com',
-		From : "b.ultra.dnb@gmail.com",
-		Subject : "",
-		Body : msg
-	});
+	msg += data.type.split('<br/>')[0] += '\n';
+	msg += data.location.split('<br/>')[0] += '\n';
+	msg += data.status.split('<br/>')[0] += '\n';
+	msg += data.time.split('<br/>')[0];
+	trace(msg);
+	if (do_alert == 'true') alert(msg);
 }
 
 function distance(p1, p2)
@@ -116,6 +139,7 @@ function get_icon(agency)
 	{
 		case 'RPD': return police_icon;
 		case 'RFD': return fire_icon;
+		case 'HOME': return home_icon;
 		default: return police_icon;
 	}
 }
@@ -142,6 +166,13 @@ var fire_icon = L.icon({
     iconUrl: 'fire.svg',
     iconSize: [48, 48],
     iconAnchor: [24, 48]
+});
+
+var home_icon = L.icon({
+	iconUrl: 'home.svg',
+	iconSize: [24, 24],
+	iconAnchor: [12, 24],
+	fillColor: '#ff004d'
 });
 
 var mymap = L.map('map', { zoomControl:false }).setView([37.533333, -77.466667], 13);
