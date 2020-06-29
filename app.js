@@ -2,16 +2,17 @@ calls = [];
 markers = [];
 circles = [];
 alerts = [];
+trace = console.log;
 
 function get_active_calls()
 {
 	remove_markers();
-	var cors_api_url = 'https://cors-anywhere.herokuapp.com/';
-	var target_site = 'http://eservices.ci.richmond.va.us/applications/publicsafety/activecalls//Home/ActiveCalls';
-	fetch(cors_api_url + target_site, {mode: 'cors'})
+	fetch('https://cors-anywhere.herokuapp.com/https://apps.richmondgov.com/applications/activecalls/Home/ActiveCalls')
 		.then(res => res.text())
-		.then(html => parse_response(new DOMParser().parseFromString(html, "text/html")));
-	setTimeout(() => get_active_calls(), 60 * 60 * 1000);
+		.then(html => parse_response(new DOMParser().parseFromString(html, 'text/html')));
+	setTimeout(() => {
+		get_active_calls();
+	}, 60 * 60 * 1000);
 }
 
 function remove_markers()
