@@ -11,6 +11,7 @@ if (isNaN(miles)) miles = 1;
 
 function get_active_calls()
 {
+	trace('***\nRefreshing\n' + new Date().toTimeString() + '\n***');
 	remove_markers();
 	if (lat && lng) make_marker({ lat: lat, lng: lng }, {
 		agency: 'HOME'
