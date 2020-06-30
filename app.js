@@ -6,6 +6,8 @@ const params = new URLSearchParams(window.location.href.split('?')[1]);
 lat = params.get('lat');
 lng = params.get('lng');
 do_alert = params.get('alert');
+refresh = parseFloat(params.get('refresh'));
+if (isNaN(refresh)) refresh = 60;
 miles = parseFloat(params.get('miles'));
 if (isNaN(miles)) miles = 1;
 
@@ -21,7 +23,7 @@ function get_active_calls()
 		.then(html => parse_response(new DOMParser().parseFromString(html, 'text/html')));
 	setTimeout(() => {
 		get_active_calls();
-	}, 60 * 60 * 1000);
+	}, refresh * 60 * 1000);
 }
 
 function remove_markers()
