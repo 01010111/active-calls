@@ -28,6 +28,7 @@ function get_active_calls()
 
 function remove_markers()
 {
+	calls = [];
 	while (markers.length > 0) mymap.removeLayer(markers.pop());
 	while (circles.length > 0) mymap.removeLayer(circles.pop());
 }
