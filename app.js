@@ -13,7 +13,7 @@ if (isNaN(miles)) miles = 1;
 
 function get_active_calls()
 {
-	trace('***\nRefreshing\n' + new Date().toTimeString() + '\n***');
+	trace('%c***\nRefreshing\n' + new Date().toTimeString() + '\n***', 'color: #888');
 	remove_markers();
 	if (lat && lng) make_marker({ lat: lat, lng: lng }, {
 		agency: 'HOME'
@@ -121,14 +121,14 @@ function check_home_distance(latlng, data)
 
 function proximity_alert(data)
 {
-	var msg = '';
+	var msg = '%c';
 	msg += data.agency.split('<br/>')[0];
-	msg += ' ALERT\n---\n';
+	msg += ' ALERT\n---\n%c';
 	msg += data.type.split('<br/>')[0] += '\n';
 	msg += data.location.split('<br/>')[0] += '\n';
-	msg += data.status.split('<br/>')[0] += '\n';
+	msg += data.status.split('<br/>')[0] += '%c\n';
 	msg += data.time.split('<br/>')[0];
-	trace(msg);
+	trace(msg, 'color: #ff004d; background: #200', 'color: #fff', 'color:#888');
 	if (do_alert == 'true') alert(msg);
 }
 
